@@ -1,6 +1,8 @@
 {
    "captainVersion": "2",
    "documentation":"Taken from https://docs.ghost.org/",
+   "displayName": "",
+   "description": "Ghost is a free and open source blogging platform written in JavaScript and distributed under the MIT License",
    "dockerCompose":{
       "services":{
          "$$cap_appname":{
@@ -37,6 +39,7 @@
                "MARIADB_ROOT_USER":"$$cap_db_user",
                "MARIADB_USER":"ghost"
             },
+            "notExposeAsWebApp": "true",
             "image":"bitnami/mariadb:10.1",
             "restart":"always",
             "volumes":[

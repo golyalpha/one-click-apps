@@ -1,5 +1,4 @@
  /*jshint esversion: 6 */
- const ghPages = require('gh-pages');
  const path = require('path');
  const fs = require('fs-extra')
 
@@ -16,6 +15,7 @@
          .then(function (items) {
 
              const apps = items.filter(v => v.includes('.json'));
+             const appDetails = [];
 
              for (var i = 0; i < apps.length; i++) {
                  const contentString = fs.readFileSync(path.join(pathOfApps, apps[i]));
@@ -28,11 +28,29 @@
                      if (contentString.includes("$$cap_root_domain"))
                          throw new Error('V1 should not have root domain')
                  }
+
                  apps[i] = apps[i].replace('.json', '');
+
+                 if (captainVersion + '' === '2') {
+                     if (!content.displayName) {
+                         content.displayName = apps[i]
+                         content.displayName = content.displayName.substr(0, 1).toUpperCase() + content.displayName.substring(1, content.displayName.length)
+                     }
+                     if (!content.description) content.description = ''
+
+                     appDetails[i] = {
+                         name: apps[i],
+                         displayName: content.displayName,
+                         description: content.description,
+                         logoUrl: apps[i] + '.png'
+                     }
+                 }
+
              }
 
              fs.outputJsonSync(pathOfList, {
-                 appList: apps
+                 appList: apps,
+                 appDetails: appDetails
              });
 
          })
@@ -46,14 +64,7 @@
      .then(function () {
          return copyVersion(2)
      })
-     .then(function () {
-         ghPages.publish('public', function (err) {
-             if (err)
-                 console.log(err);
-             else
-                 console.log('Built and deployed successfully');
-         });
-     })
      .catch(function (err) {
          console.error(err)
+         process.exit(127)
      })
